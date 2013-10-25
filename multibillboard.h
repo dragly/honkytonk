@@ -4,6 +4,7 @@
 #include <QQuickItem3D>
 #include <QGLAbstractScene>
 #include <QElapsedTimer>
+#include <armadillo>
 
 class MultiBillboard : public QQuickItem3D
 {
@@ -11,9 +12,12 @@ class MultiBillboard : public QQuickItem3D
     Q_PROPERTY(SortMode sortPoints READ sortPoints WRITE setSortPoints NOTIFY sortPointsChanged)
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName NOTIFY fileNameChanged)
     Q_PROPERTY(bool faceCamera READ faceCamera WRITE setFaceCamera NOTIFY faceCameraChanged)
-    Q_PROPERTY(int nVisiblePoints READ nVisiblePoints WRITE setNVisiblePoints NOTIFY nVisiblePointsChanged)
-    Q_PROPERTY(int currentTimeStep READ currentTimeStep WRITE setCurrentTimeStep NOTIFY currentTimeStepChanged)
+    Q_PROPERTY(int nVisibleSampleSteps READ nVisibleSampleSteps WRITE setNVisibleSampleSteps NOTIFY nVisibleSampleStepsChanged)
+    Q_PROPERTY(int currentSampleStep READ currentSampleStep WRITE setCurrentSampleStep NOTIFY currentSampleStepChanged)
     Q_PROPERTY(bool useAlphaTest READ useAlphaTest WRITE setUseAlphaTest NOTIFY useAlphaTestChanged)
+    Q_PROPERTY(int nSampleSteps READ nSampleSteps NOTIFY nSampleStepsChanged)
+    Q_PROPERTY(double size READ size WRITE setSize NOTIFY sizeChanged)
+    Q_PROPERTY(int sampleStep READ sampleStep WRITE setSampleStep NOTIFY sampleStepChanged)
 
 public:
     explicit MultiBillboard(QQuickItem *parent = 0);
@@ -35,19 +39,34 @@ public:
         return m_faceCamera;
     }
 
-    int nVisiblePoints() const
+    int nVisibleSampleSteps() const
     {
         return m_nVisiblePoints;
     }
 
-    int currentTimeStep() const
+    int currentSampleStep() const
     {
-        return m_currentTimeStep;
+        return m_currentSampleStep;
     }
 
     bool useAlphaTest() const
     {
         return m_useAlphaTest;
+    }
+
+    int nSampleSteps() const
+    {
+        return m_nSampleSteps;
+    }
+
+    double size() const
+    {
+        return m_size;
+    }
+
+    int sampleStep() const
+    {
+        return m_sampleStep;
     }
 
 protected:
@@ -64,11 +83,17 @@ signals:
 
     void faceCameraChanged(bool arg);
 
-    void nVisiblePointsChanged(int arg);
+    void nVisibleSampleStepsChanged(int arg);
 
-    void currentTimeStepChanged(int arg);
+    void currentSampleStepChanged(int arg);
 
     void useAlphaTestChanged(bool arg);
+
+    void nSampleStepsChanged(int arg);
+
+    void sizeChanged(double arg);
+
+    void sampleStepChanged(int arg);
 
 public slots:
 
@@ -100,21 +125,21 @@ public slots:
         }
     }
 
-    void setNVisiblePoints(int arg)
+    void setNVisibleSampleSteps(int arg)
     {
         if (m_nVisiblePoints != arg) {
             m_nVisiblePoints = arg;
             update();
-            emit nVisiblePointsChanged(arg);
+            emit nVisibleSampleStepsChanged(arg);
         }
     }
 
-    void setCurrentTimeStep(int arg)
+    void setCurrentSampleStep(int arg)
     {
-        if (m_currentTimeStep != arg) {
-            m_currentTimeStep = arg;
+        if (m_currentSampleStep != arg) {
+            m_currentSampleStep = arg;
             update();
-            emit currentTimeStepChanged(arg);
+            emit currentSampleStepChanged(arg);
         }
     }
 
@@ -127,13 +152,34 @@ public slots:
         }
     }
 
+    void setSize(double arg)
+    {
+        if (m_size != arg) {
+            m_size = arg;
+            update();
+            emit sizeChanged(arg);
+        }
+    }
+
+    void setSampleStep(int arg)
+    {
+        if(arg < 1) {
+            arg = 1;
+        }
+        if (m_sampleStep != arg) {
+            m_sampleStep = arg;
+            update();
+            emit sampleStepChanged(arg);
+        }
+    }
+
 private:
     QGLSceneNode *m_topNode;
     bool m_sceneSet;
     QGLSceneNode* m_geometry;
     QGLAbstractScene *scene;
 
-    QList<QVector3D> m_points;
+//    QList<QVector3D> m_points;
     SortMode m_sortPoints;
     QString m_fileName;
 
@@ -141,8 +187,12 @@ private:
     bool m_faceCamera;
     bool m_needsRebuildGeometry;
     int m_nVisiblePoints;
-    int m_currentTimeStep;
+    int m_currentSampleStep;
     bool m_useAlphaTest;
+    int m_nSampleSteps;
+    double m_size;
+    int m_sampleStep;
+    arma::cube m_filePositions;
 };
 
 #endif // MULTIBILLBOARD_H

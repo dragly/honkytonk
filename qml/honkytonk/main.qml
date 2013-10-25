@@ -2,9 +2,6 @@ import QtQuick 2.0
 import QtQuick.Controls 1.0
 import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.0
-import Qt3D 2.0
-import Qt3D.Shapes 2.0
-import Dragly 1.0
 
 Item {
     id: windowRoot
@@ -19,12 +16,7 @@ Item {
         interval: 16
         repeat: true
         onTriggered: {
-            var dt = 0.001
-            if(timeSlider.value + dt > 1) {
-                timeSlider.value = 0
-            } else {
-                timeSlider.value += dt
-            }
+            timeSlider.value += mainViewport.billboard.sampleStep
         }
     }
 
@@ -32,39 +24,19 @@ Item {
         anchors.fill: parent
         anchors.margins: 5
         ColumnLayout {
-            Viewport {
+            MainViewport {
+                id: mainViewport
+                billboard {
+                    currentSampleStep: timeSlider.value
+                    nVisibleSampleSteps: nVisibleSampleStepsSlider.trueValue
+                    fileName: windowRoot.fileName
+                    size: particleSizeSlider.value
+                    sampleStep: sampleStepSlider.trueValue
+                }
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                fillColor: "black"
-
-                light: Light {
-                    ambientColor: Qt.rgba(1,1,1,1)
-                    position.x: myCamera.eye.x / 2
-                    position.y: myCamera.eye.y / 2
-                    position.z: myCamera.eye.z / 2
-                    quadraticAttenuation: 0.01
-                }
-
-                camera: Camera {
-                    id: myCamera
-                    eye: Qt.vector3d(21,7,19)
-                    nearPlane: 5
-                    farPlane: 50
-                    eyeSeparation: 10
-                }
-
-                MultiBillboard {
-//                    sortPoints: Item3D.BackToFront
-                    nVisiblePoints: 1000 * nTimeStepsSlider.value
-                    currentTimeStep: 10000 * timeSlider.value
-                    fileName: windowRoot.fileName
-                    useAlphaTest: true
-                    effect: Effect {
-                        blending: true
-                        texture: "particle.png"
-                    }
-                }
             }
+
             RowLayout {
                 Button {
                     id: playPauseButton
@@ -74,6 +46,10 @@ Item {
                 Slider {
                     id: timeSlider
                     Layout.fillWidth: true
+                    value: 10
+                    stepSize: mainViewport.billboard.sampleStep
+                    minimumValue: 0
+                    maximumValue: mainViewport.billboard.nSampleSteps
                 }
             }
         }
@@ -92,11 +68,36 @@ Item {
                 Layout.alignment: Qt.AlignRight
             }
             Label {
-                text: qsTr("Number of timesteps:")
+                text: qsTr("Sample step: ") + sampleStepSlider.trueValue
             }
             Slider {
-                id: nTimeStepsSlider
+                id: sampleStepSlider
+                property int trueValue: 1 + Math.exp(value) / Math.exp(10) * 10000
                 Layout.minimumWidth: 200
+                minimumValue: 0
+                maximumValue: 10
+                value: 1
+            }
+            Label {
+                text: qsTr("Visible samples: ") + nVisibleSampleStepsSlider.trueValue
+            }
+            Slider {
+                id: nVisibleSampleStepsSlider
+                property int trueValue: 1 + Math.exp(value) / Math.exp(10) * 10000
+                Layout.minimumWidth: 200
+                value: 0.1
+                minimumValue: 0
+                maximumValue: 10
+            }
+            Label {
+                text: qsTr("Particle size:")
+            }
+            Slider {
+                id: particleSizeSlider
+                Layout.minimumWidth: 200
+                minimumValue: 0.01
+                maximumValue: 2
+                value: 0.2
             }
             Item {
                 Layout.fillHeight: true
