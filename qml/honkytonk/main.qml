@@ -55,6 +55,9 @@ Item {
         }
         ColumnLayout {
             Label {
+                text: qsTr("Armadillo cube,\nsteps x particles x dimensions")
+            }
+            Label {
                 text: qsTr("File:")
             }
             TextField {

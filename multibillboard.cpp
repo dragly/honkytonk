@@ -139,13 +139,15 @@ void MultiBillboard::loadPointsFromFile()
 {
     qDebug() << "Loading points from file";
     if(m_fileName == "") {
-        m_filePositions.reset();
         return;
     }
-    if(!m_filePositions.load(m_fileName.toStdString())) {
+    arma::cube filePositions;
+    if(!filePositions.load(m_fileName.toStdString(), arma::arma_binary)) {
         qDebug() << "Could not load file " << m_fileName;
         return;
     }
+    m_filePositions = filePositions;
+    filePositions.reset();
     qDebug() << "Loaded " << m_filePositions.n_rows << "x" << m_filePositions.n_cols << "x" << m_filePositions.n_slices << " rows x cols x slices";
     //    m_points.clear();
     //    for(uint k = 0; k < filePositions.n_slices; k++) {
