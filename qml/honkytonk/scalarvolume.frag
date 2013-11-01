@@ -1,5 +1,6 @@
 //#extension GL_ARB_gpu_shader5 : enable
 uniform sampler3D myTexture3D;
+uniform sampler2D depthBuffer;
 uniform highp mat4 qt_ModelViewMatrix; // = MV
 uniform highp mat4 qt_ModelViewProjectionMatrix; // = MV
 uniform highp mat4 qt_ProjectionMatrix; // = MV
@@ -45,16 +46,5 @@ void main(void)
     colorAcummulated = clamp(colorAcummulated, 0, 1);
     redAcummulated = clamp(redAcummulated, 0, 1);
     gl_FragColor = vec4(1.0, 1.0, 1.0, colorAcummulated);
-//    gl_FragColor = vec4(0.0, gl_FragDepth, 1.0, 1.0);
-//    gl_FragColor = vec4(normalize(eyePosition), 1.0);
-//            - redAcummulated * vec4(1.0, 1.0, 0.0, 0.0);
-
-    // Testing:
-    //    gl_FragColor = vec4(normalize(eye).xyz, 1.0);
-    //    gl_FragColor = vec4(normalize(direction).xyz, 1.0);
-    //    gl_FragColor = vec4(normalize(eyeCoord).xyz, 1.0);
-    //    gl_FragColor = vec4(deltaDir.xyz * 100.0, 1.0);
-    //    gl_FragColor = vec4(traversedLength, 0.0, 0.0, 1.0);
-//        gl_FragColor = vec4(texture2D(qt_Texture0, gl_FragCoord.xy / vec2(1000, 800)));
 
 }

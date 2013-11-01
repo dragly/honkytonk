@@ -38,6 +38,11 @@ void MultiBillboard::drawItem(QGLPainter *painter) {
         glAlphaFunc(GL_GREATER, 0.1);
     }
 #endif
+//    glEnable(GL_DEPTH_TEST);
+//    glDepthFunc(GL_ALWAYS);
+//    glDepthMask(GL_TRUE);
+//    glEnable(GL_FOG);
+//    glFogi(GL_FOG_COORDINATE_SOURCE, GL_FOG_COORDINATE);
     //    if(m_sortPoints == BackToFront) {
     //        QMultiMap<double, QVector3D> sortedPoints;
     //        int startPoint = std::max(0, m_currentSampleStep - m_nVisiblePoints);
@@ -121,6 +126,7 @@ void MultiBillboard::drawItem(QGLPainter *painter) {
     }
 #endif
     drawMutex.unlock();
+    glDisable(GL_DEPTH_TEST);
 }
 
 void MultiBillboard::setPositionReader(PositionReader *arg)

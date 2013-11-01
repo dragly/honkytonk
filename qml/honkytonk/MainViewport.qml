@@ -43,7 +43,9 @@ Viewport {
     }
     PositionReader {
         id: mainPositionReader
+        fileName: "/home/svenni/Dropbox/projects/programming/honkytonk/anti/positions.bin"
     }
+
 
     MultiBillboard {
         id: mainBillboard
@@ -79,7 +81,6 @@ Viewport {
             positionReader: mainPositionReader
         }
     }
-
 //    Sphere {
 //        id: sphere1
 //        radius: 0.2

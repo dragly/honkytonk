@@ -826,13 +826,6 @@ void VolumeShaderProgram::enableEffect(QGLPainter *painter)
     }
     d->regenerate = false;
     painter->setUserEffect(d->effect);
-    painter->setColor(color());
-    QGLTexture2D *tex = texture2D();
-    painter->glActiveTexture(GL_TEXTURE0);
-    if (tex)
-        tex->bind();
-    else
-        glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 /*!

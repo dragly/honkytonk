@@ -9,4 +9,5 @@ void main(void)
     gl_Position = qt_ModelViewProjectionMatrix * qt_Vertex;
     entryPoint = qt_Vertex;
     entryPointTexCoord = qt_Vertex; // Should be set to a texture coordinate
+    gl_FogFragCoord = gl_FogCoord;
 }
