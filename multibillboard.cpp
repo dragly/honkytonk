@@ -3,6 +3,7 @@
 #include <QGLBuilder>
 #include <QQuickEffect>
 #include <qmath.h>
+#include <positionreader.h>
 
 #include <armadillo>
 
@@ -15,56 +16,28 @@ MultiBillboard::MultiBillboard(QQuickItem *parent) :
     m_needsRebuildGeometry(true),
     m_nVisiblePoints(1e4),
     m_currentSampleStep(2),
-    m_nSampleSteps(10),
     m_size(1),
     m_sampleStep(1),
-    m_useAlphaTest(true)
+    m_useAlphaTest(true),
+    m_positionReader(0)
 {
-    generateRandomPoints();
-}
-
-void MultiBillboard::generateRandomPoints() {
-    m_filePositions.reset();
-    m_filePositions = arma::zeros(1,20*20*20,3);
-    double spacing = 1;
-    int nPerDim = 20;
-    int counter = 0;
-    for(int i = 0; i < nPerDim; i++) {
-        for(int j = 0; j < nPerDim; j++) {
-            for(int k = 0; k < nPerDim; k++) {
-                m_filePositions(0,counter,0) = i;
-                m_filePositions(0,counter,1) = j;
-                m_filePositions(0,counter,2) = k;
-                counter++;
-            }
-        }
-    }
-    m_nSampleSteps = 1;
-    emit sampleStepChanged(m_nSampleSteps);
-    m_needsRebuildGeometry = true;
 }
 
 void MultiBillboard::drawItem(QGLPainter *painter) {
+    if(!drawMutex.tryLock()) {
+        qWarning() << "MultiBillboard::drawItem(): Called before finishing previous draw call.";
+        return;
+    }
+    if(!m_positionReader) {
+        qWarning() << "No position reader set. Cannot draw...";
+        return;
+    }
 #ifndef Q_OS_ANDROID
     if(m_sortPoints != BackToFront && m_useAlphaTest) {
         glEnable(GL_ALPHA_TEST);
         glAlphaFunc(GL_GREATER, 0.1);
     }
 #endif
-    // Build the mesh
-    QGLBuilder builder;
-    builder.newSection(QGL::NoSmoothing);
-    const QMatrix4x4 &modelViewMatrix = painter->modelViewMatrix();
-    QVector3D right;
-    right.setX(modelViewMatrix(0,0));
-    right.setY(modelViewMatrix(0,1));
-    right.setZ(modelViewMatrix(0,2));
-    QVector3D up;
-    up.setX(modelViewMatrix(1,0));
-    up.setY(modelViewMatrix(1,1));
-    up.setZ(modelViewMatrix(1,2));
-    QGeometryData quad;
-
     //    if(m_sortPoints == BackToFront) {
     //        QMultiMap<double, QVector3D> sortedPoints;
     //        int startPoint = std::max(0, m_currentSampleStep - m_nVisiblePoints);
@@ -88,6 +61,19 @@ void MultiBillboard::drawItem(QGLPainter *painter) {
     //    }
 
     if(!m_geometry || m_faceCamera || m_needsRebuildGeometry) {
+        // Build the mesh
+        QGLBuilder builder;
+        builder.newSection(QGL::NoSmoothing);
+        const QMatrix4x4 &modelViewMatrix = painter->modelViewMatrix();
+        QVector3D right;
+        right.setX(modelViewMatrix(0,0));
+        right.setY(modelViewMatrix(0,1));
+        right.setZ(modelViewMatrix(0,2));
+        QVector3D up;
+        up.setX(modelViewMatrix(1,0));
+        up.setY(modelViewMatrix(1,1));
+        up.setZ(modelViewMatrix(1,2));
+        QGeometryData quad;
         QVector3D a;
         QVector3D b;
         QVector3D c;
@@ -98,14 +84,15 @@ void MultiBillboard::drawItem(QGLPainter *painter) {
         QVector2D td(1,0);
         QVector3D center;
         int startPoint = std::max(0, m_currentSampleStep - m_nVisiblePoints * m_sampleStep);
+        const cube& positions = m_positionReader->positions();
         for(int i = startPoint;
-            i < m_currentSampleStep && i < m_filePositions.n_rows;
+            i < m_currentSampleStep && i < positions.n_rows;
             i+= m_sampleStep) {
-            for(int j = 0; j < m_filePositions.n_cols; j++) {
+            for(int j = 0; j < positions.n_cols; j++) {
 //                const QVector3D &center = m_points.at(i);
-                center.setX(m_filePositions(i,j,0));
-                center.setY(m_filePositions(i,j,1));
-                center.setZ(m_filePositions(i,j,2));
+                center.setX(positions(i,j,0));
+                center.setY(positions(i,j,1));
+                center.setZ(positions(i,j,2));
                 if(painter->isCullable(center)) {
                     continue;
                 }
@@ -133,32 +120,21 @@ void MultiBillboard::drawItem(QGLPainter *painter) {
         glDisable(GL_ALPHA_TEST);
     }
 #endif
+    drawMutex.unlock();
 }
 
-void MultiBillboard::loadPointsFromFile()
+void MultiBillboard::setPositionReader(PositionReader *arg)
 {
-    qDebug() << "Loading points from file";
-    if(m_fileName == "") {
-        return;
+    if (m_positionReader != arg) {
+        if(m_positionReader) {
+            disconnect(m_positionReader, SIGNAL(dataChanged()), this, SLOT(update()));
+        }
+        m_positionReader = arg;
+        connect(m_positionReader, SIGNAL(dataChanged()), this, SLOT(update()));
+        m_needsRebuildGeometry = true;
+        update();
+        emit positionReaderChanged(arg);
     }
-    arma::cube filePositions;
-    if(!filePositions.load(m_fileName.toStdString(), arma::arma_binary)) {
-        qDebug() << "Could not load file " << m_fileName;
-        return;
-    }
-    m_filePositions = filePositions;
-    filePositions.reset();
-    qDebug() << "Loaded " << m_filePositions.n_rows << "x" << m_filePositions.n_cols << "x" << m_filePositions.n_slices << " rows x cols x slices";
-    //    m_points.clear();
-    //    for(uint k = 0; k < filePositions.n_slices; k++) {
-    //        for(uint i = 0; i < filePositions.n_rows; i++) {
-    //            QVector3D center(filePositions(i,0,k), filePositions(i,1,k), filePositions(i,2,k));
-    //            m_points.push_back(center);
-    //        }
-    //    }
-    m_needsRebuildGeometry = true;
-    m_nSampleSteps = m_filePositions.n_rows;
-    emit nSampleStepsChanged(m_nSampleSteps);
 }
 
 MultiBillboard::~MultiBillboard()

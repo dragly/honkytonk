@@ -5,9 +5,12 @@ import Dragly 1.0
 
 Viewport {
     property alias billboard: mainBillboard
+    property alias positionReader: mainPositionReader
+    property alias multiplier: mainDensityPlotter.multiplier
+    property alias useSquareRootDensity: mainDensityPlotter.useSquareRootDensity
     property Sphere pickedSphere: null
     fillColor: "black"
-    picking: true
+    picking: false
 
     light: Light {
         ambientColor: Qt.rgba(1,1,1,1)
@@ -19,7 +22,7 @@ Viewport {
 
     camera: Camera {
         id: myCamera
-        eye: Qt.vector3d(21,7,19)
+        eye: Qt.vector3d(30,25,19)
         nearPlane: 5
         farPlane: 100
         Behavior on center.x {
@@ -38,6 +41,9 @@ Viewport {
             }
         }
     }
+    PositionReader {
+        id: mainPositionReader
+    }
 
     MultiBillboard {
         id: mainBillboard
@@ -47,40 +53,65 @@ Viewport {
             blending: true
             texture: "particle.png"
         }
+        positionReader: mainPositionReader
     }
 
-    Sphere {
-        id: sphere1
-        radius: 0.2
-        x: 0.7
-        effect: Effect {
-            color: pickedSphere === sphere1 ? "red" : "yellow"
-            Behavior on color {
-                ColorAnimation { duration: 600 }
-            }
-        }
+    Item3D {
+        property double maxMinDifference: positionReader.voxelEdgeMax - positionReader.voxelEdgeMin
+        cullFaces: Item3D.CullBackFaces
+        scale: maxMinDifference
+        mesh: Mesh {
+            source: "cube.obj"
 
-        onPressed: {
-            myCamera.center = position
-            pickedSphere = sphere1
+        }
+//        effect: Effect {
+//            color: "red"
+//        }
+
+        effect: VolumeShaderProgram {
+            id: mainDensityPlotter
+            property vector3d eyePosition: myCamera.eye
+            property real multiplier: 100
+            property bool useSquareRootDensity: false
+            blending: true
+            vertexShaderSource: "scalarvolume.vert"
+            fragmentShaderSource: "scalarvolume.frag"
+            positionReader: mainPositionReader
         }
     }
 
-    Sphere {
-        id: sphere2
-        radius: 0.2
-        x: -0.7
-        onPressed: {
-            myCamera.center = position
-            pickedSphere = sphere2
-        }
-        effect: Effect {
-            color: pickedSphere === sphere2 ? "red" : "yellow"
-            Behavior on color {
-                ColorAnimation { duration: 600 }
-            }
-        }
-    }
+//    Sphere {
+//        id: sphere1
+//        radius: 0.2
+//        x: 4.0
+//        effect: Effect {
+//            color: pickedSphere === sphere1 ? "red" : "yellow"
+//            Behavior on color {
+//                ColorAnimation { duration: 600 }
+//            }
+//        }
+
+//        onPressed: {
+//            myCamera.center = position
+//            pickedSphere = sphere1
+//        }
+//    }
+
+//    Sphere {
+//        id: sphere2
+//        radius: 0.2
+//        x: -4.0
+//        onPressed: {
+//            myCamera.center = position
+//            pickedSphere = sphere2
+//        }
+//        effect: Effect {
+//            color: pickedSphere === sphere2 ? "red" : "yellow"
+//            Behavior on color {
+//                ColorAnimation { duration: 600 }
+//            }
+//        }
+//    }
 
     focus: true
 

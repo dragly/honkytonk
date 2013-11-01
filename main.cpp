@@ -1,4 +1,6 @@
 #include <multibillboard.h>
+#include <positionreader.h>
+#include <volumeeffect.h>
 
 #include <QtCore/qdir.h>
 
@@ -10,6 +12,8 @@
 int main(int argc, char *argv[])
 {
     qmlRegisterType<MultiBillboard>("Dragly", 1, 0, "MultiBillboard");
+    qmlRegisterType<PositionReader>("Dragly", 1, 0, "PositionReader");
+    qmlRegisterType<VolumeShaderProgram>("Dragly", 1, 0, "VolumeShaderProgram");
     QGuiApplication app(argc, argv);
     QSurfaceFormat f;
     f.setSamples(0);

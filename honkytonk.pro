@@ -16,7 +16,8 @@ QML_IMPORT_PATH =
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
     multibillboard.cpp \
-    positionreader.cpp
+    positionreader.cpp \
+    volumeeffect.cpp
 
 # Installation path
 # target.path =
@@ -27,4 +28,6 @@ qtcAddDeployment()
 
 HEADERS += \
     multibillboard.h \
-    positionreader.h
+    positionreader.h \
+    volumeeffect.h \
+    volumeeffect_p.h

@@ -29,10 +29,15 @@ Item {
                 billboard {
                     currentSampleStep: timeSlider.value
                     nVisibleSampleSteps: nVisibleSampleStepsSlider.trueValue
-                    fileName: windowRoot.fileName
                     size: particleSizeSlider.value
                     sampleStep: sampleStepSlider.trueValue
                 }
+                positionReader {
+                    fileName: windowRoot.fileName
+                }
+                multiplier: densityMultiplierSlider.value
+                useSquareRootDensity: useSquareRootDensityCheckBox.checked
+
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
@@ -49,7 +54,7 @@ Item {
                     value: 10
                     stepSize: mainViewport.billboard.sampleStep
                     minimumValue: 0
-                    maximumValue: mainViewport.billboard.nSampleSteps
+                    maximumValue: mainViewport.positionReader.nSampleSteps
                 }
             }
         }
@@ -102,6 +107,22 @@ Item {
                 maximumValue: 2
                 value: 0.2
             }
+            Label {
+                text: qsTr("Density multiplier:")
+            }
+            Slider {
+                id: densityMultiplierSlider
+                Layout.minimumWidth: 200
+                minimumValue: 0.01
+                maximumValue: 500
+                value: 30
+            }
+            CheckBox {
+                id: useSquareRootDensityCheckBox
+                checked: false
+                text: "Use sqrt(densityValue)"
+            }
+
             Item {
                 Layout.fillHeight: true
             }
