@@ -494,7 +494,10 @@ void VolumeShaderProgramEffect::update
     // know about the scaling, translation and rotation of the item,
     // we might as well calculate the inverse of the modelView matrix
     // to get the true eye position.
-    program()->setUniformValue(m_eyePositionUniformLocation, painter->modelViewMatrix().top().inverted().column(3));
+    // TODO: For better performance: Intercept the setCamera action in QGLPainter
+    // and calculate the proper eye position while calculating the matrices.
+    QVector4D inverseColumn3 = painter->modelViewMatrix().top().inverted().column(3);
+    program()->setUniformValue(m_eyePositionUniformLocation, inverseColumn3);
 }
 
 inline QGLTexture2D* VolumeShaderProgramEffect::textureForUniformValue(int uniformLocation)

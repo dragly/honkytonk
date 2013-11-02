@@ -10,7 +10,7 @@ varying highp vec4 entryPointTexCoord; // = EntryPoint
 
 void main(void)
 {
-    float stepSize = 0.005;
+    float stepSize = 0.02;
     vec3 eye = ve_eyePosition.xyz;
     vec3 exitPoint = eye;
     vec3 direction = exitPoint - entryPoint.xyz;
@@ -38,7 +38,7 @@ void main(void)
         }
     }
     colorAcummulated = clamp(colorAcummulated, 0.0, 1.0);
-    redAcummulated = clamp(redAcummulated, 0.0, 1.0);
+//    redAcummulated = clamp(redAcummulated, 0.0, 1.0);
     gl_FragColor = vec4(1.0, 1.0, 1.0, colorAcummulated);
 
 }
