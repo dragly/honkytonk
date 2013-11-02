@@ -1,8 +1,8 @@
 //#extension GL_ARB_gpu_shader5 : enable
 uniform sampler3D myTexture3D;
-uniform sampler2D depthBuffer;
 uniform highp vec4 ve_eyePosition; // last column of the inverse modelViewMatrix
 uniform highp float multiplier;
+uniform highp float quality;
 uniform highp bool useSquareRootDensity;
 
 varying highp vec4 entryPoint; // = EntryPoint
@@ -10,7 +10,7 @@ varying highp vec4 entryPointTexCoord; // = EntryPoint
 
 void main(void)
 {
-    float stepSize = 0.02;
+    float stepSize = 1.0 / quality;
     vec3 eye = ve_eyePosition.xyz;
     vec3 exitPoint = eye;
     vec3 direction = exitPoint - entryPoint.xyz;

@@ -37,6 +37,7 @@ Item {
                 }
                 multiplier: densityMultiplierSlider.value
                 useSquareRootDensity: useSquareRootDensityCheckBox.checked
+                volumeShaderQuality: volumeShaderQualitySlider.value
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -121,6 +122,16 @@ Item {
                 id: useSquareRootDensityCheckBox
                 checked: false
                 text: "Use sqrt(densityValue)"
+            }
+            Label {
+                text: qsTr("Volume shader quality:")
+            }
+            Slider {
+                id: volumeShaderQualitySlider
+                Layout.minimumWidth: 200
+                minimumValue: 10
+                maximumValue: 1000
+                value: 100
             }
 
             Item {

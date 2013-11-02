@@ -8,6 +8,7 @@ Viewport {
     property alias positionReader: mainPositionReader
     property alias multiplier: mainDensityPlotter.multiplier
     property alias useSquareRootDensity: mainDensityPlotter.useSquareRootDensity
+    property alias volumeShaderQuality: mainDensityPlotter.quality
 //    property real multiplier
 //    property bool useSquareRootDensity
     property Sphere pickedSphere: null
@@ -59,6 +60,7 @@ Viewport {
             id: mainDensityPlotter
             property real multiplier: 100
             property bool useSquareRootDensity: false
+            property real quality: 100
             blending: true
             vertexShaderSource: "scalarvolume.vert"
             fragmentShaderSource: "scalarvolume.frag"
