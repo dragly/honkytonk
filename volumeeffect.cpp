@@ -289,6 +289,8 @@ void VolumeShaderProgramEffect::afterLink()
     qDebug() << "After link!";
 //    qDebug() << program()->uniformLocation("myTexture3D");
     m_texture3DuniformValue = program()->uniformLocation("myTexture3D");
+    m_eyePositionUniformLocation = program()->uniformLocation("ve_eyePosition");
+//    qDebug() << m_eyePositionUniformLocation;
 //    qDebug() << "Attribute: " << program()->attributeLocation("multiTexCoord3D");
 //    double data[24];
 //    QGLAttributeValue value(3, GL_FLOAT, 0, array.)
@@ -486,6 +488,13 @@ void VolumeShaderProgramEffect::update
     {
         setUniformForPropertyIndex(propertyIndex, painter);
     }
+
+    // Added specifically for the volume shader effect.
+    // This could have been passed more directly, but since we need to
+    // know about the scaling, translation and rotation of the item,
+    // we might as well calculate the inverse of the modelView matrix
+    // to get the true eye position.
+    program()->setUniformValue(m_eyePositionUniformLocation, painter->modelViewMatrix().top().inverted().column(3));
 }
 
 inline QGLTexture2D* VolumeShaderProgramEffect::textureForUniformValue(int uniformLocation)

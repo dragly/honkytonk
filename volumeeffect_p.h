@@ -149,6 +149,7 @@ private:
     QSet<int> changedTextures;
 
     int m_texture3DuniformValue;
+    int m_eyePositionUniformLocation;
 };
 
 QT_END_NAMESPACE

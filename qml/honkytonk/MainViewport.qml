@@ -59,6 +59,7 @@ Viewport {
     }
 
     Item3D {
+        id: volumeItem
         property double maxMinDifference: positionReader.voxelEdgeMax - positionReader.voxelEdgeMin
         cullFaces: Item3D.CullBackFaces
         scale: maxMinDifference
@@ -72,13 +73,16 @@ Viewport {
 
         effect: VolumeShaderProgram {
             id: mainDensityPlotter
-            property vector3d eyePosition: myCamera.eye
+//            property vector3d eyePosition: myCamera.eye.times(1.0 / volumeItem.scale)
             property real multiplier: 100
             property bool useSquareRootDensity: false
             blending: true
             vertexShaderSource: "scalarvolume.vert"
             fragmentShaderSource: "scalarvolume.frag"
             positionReader: mainPositionReader
+//            onEyeChanged: {
+//                console.log("QML  : " + eyePosition)
+//            }
         }
     }
 //    Sphere {
