@@ -92,7 +92,7 @@ Item {
             }
             Slider {
                 id: nVisibleSampleStepsSlider
-                property int trueValue: 1 + Math.exp(value) / Math.exp(10) * 10000
+                property int trueValue: 1 + Math.exp(value) / Math.exp(10) * 1000000
                 Layout.minimumWidth: 200
                 value: 0.1
                 minimumValue: 0
