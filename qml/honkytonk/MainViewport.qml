@@ -54,7 +54,6 @@ Viewport {
         scale: maxMinDifference
         mesh: Mesh {
             source: "cube.obj"
-
         }
         effect: VolumeShaderProgram {
             id: mainDensityPlotter

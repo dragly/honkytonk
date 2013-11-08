@@ -180,6 +180,11 @@ private:
 
     QMutex drawMutex;
     PositionReader* m_positionReader;
+
+    QArray<QVector3D> vertices;
+    QArray<QVector3D> normals;
+    QArray<QVector2D> texCoords;
+    QArray<uint> indexes;
 };
 
 #endif // MULTIBILLBOARD_H
